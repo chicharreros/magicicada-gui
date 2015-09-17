@@ -1,0 +1,60 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+#
+# Copyright 2010 Chicharreros
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+"""Script to run Magicicada."""
+
+import sys
+import os
+
+from twisted.internet import gireactor
+gireactor.install()
+
+# Add project root directory (enable symlink, and trunk execution).
+PROJECT_ROOT_DIRECTORY = os.path.abspath(
+    os.path.dirname(os.path.dirname(os.path.realpath(sys.argv[0]))))
+
+if (os.path.exists(os.path.join(PROJECT_ROOT_DIRECTORY, 'magicicada'))
+    and PROJECT_ROOT_DIRECTORY not in sys.path):
+    sys.path.insert(0, PROJECT_ROOT_DIRECTORY)
+    os.putenv('PYTHONPATH', PROJECT_ROOT_DIRECTORY) # for subprocesses
+
+from magicicada.logger import set_up as logging_set_up
+from magicicada.gui.gtk import MagicicadaUI
+
+
+if __name__ == "__main__":
+    # Support for command line options.
+    import logging
+    import optparse
+    parser = optparse.OptionParser(version="%prog %ver")
+    parser.add_option(
+        "-v", "--verbose", action="store_true", dest="verbose",
+        help=_("Show debug messages"))
+    (options, args) = parser.parse_args()
+
+    # Set the logging level to show debug messages.
+    if options.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+        logging.debug('logging enabled')
+
+    from twisted.internet import reactor
+
+    logging_set_up()
+
+    # Run the application.
+    window = MagicicadaUI(on_destroy=lambda *a, **kw: reactor.stop())
+    reactor.run()

@@ -1,0 +1,3 @@
+include magicicada.desktop.in
+recursive-include data *
+include COPYING README.txt

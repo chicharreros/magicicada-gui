@@ -1,0 +1,8 @@
+[Desktop Entry]
+_Name=Magicicada
+_Comment=Magicicada application
+Categories=GNOME;Utility;
+Exec=magicicada
+Icon=/usr/share/magicicada/media/icon.png
+Terminal=false
+Type=Application
