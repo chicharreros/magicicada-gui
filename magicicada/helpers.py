@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Authors: Natalia Bidart <nataliabidart@gmail.com>
-#          Facundo Batista <facundo@taniquetil.com.ar>
-#
-# Copyright 2010-2011 Chicharreros
+# Copyright 2010-2016 Chicharreros
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -26,7 +23,8 @@ import logging
 from functools import wraps
 
 
-NO_OP = lambda *a, **kw: None
+def NO_OP(*a, **kw):
+    """Don't do anything."""
 
 
 def log(logger, level=logging.DEBUG):

@@ -1,7 +1,17 @@
-This is Magicicada!
+This is Magicicada GUI!
 
 A GTK+ frontend for the "Chicharra" part of Ubuntu One client.
 
+
+HOWTO run it from source
+------------------------
+
+Just do, from where you branched the project:
+
+    PYTHONPATH=$MAGICICADA_CLIENT_BRANCH:. bin/magicicada
+
+(being $MAGICICADA_CLIENT_BRANCH the path of where you have
+your working lp:magicicada-client)
 
 
 HOWTO do a source release

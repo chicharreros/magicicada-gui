@@ -24,9 +24,9 @@ import time
 # pylint: disable=E0611
 from gi.repository import Gtk
 # pylint: enable=E0611
-from ubuntuone.controlpanel.gui import humanize
 
 from magicicada import queue_content, syncdaemon
+from magicicada.helpers import humanize_bytes
 from magicicada.gui.gtk.helpers import Buildable
 
 # pylint: disable=E0602
@@ -239,7 +239,8 @@ class Operations(Buildable, Gtk.Alignment):
                 transfered = transf.transfered
                 transfer = (transfered / float(transf.total)) * 100
                 self.ops_store.set_value(row_iter, 5, int(transfer))
-                text = TRANSFER_TEXT.format(transfered=humanize(transfered),
-                                            total=humanize(transf.total),
-                                            percent=transfer)
+                text = TRANSFER_TEXT.format(
+                    transfered=humanize_bytes(transfered),
+                    total=humanize_bytes(transf.total),
+                    percent=transfer)
                 self.ops_store.set_value(row_iter, 7, text)
