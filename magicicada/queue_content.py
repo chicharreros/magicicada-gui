@@ -250,7 +250,7 @@ class QueueContent(object):
             children = node.children
 
         # search for the operation in the list
-        ops = [x for x in node.operations if x[0] == op_id]
+        ops = [x for x in node.operations if x[0] == op_id if not x[2][DONE]]
         if len(ops) != 1:
             logger.error("Operation %s [%s] found %d times in node %s",
                          op_name, op_id, len(ops), node)

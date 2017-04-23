@@ -1,8 +1,4 @@
-# Tests for the QueueContent interface
-#
-# Author: Facundo Batista <facundo@taniquetil.com.ar>
-#
-# Copyright 2010-2011 Chicharreros
+# Copyright 2010-2017 Chicharreros
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -534,6 +530,88 @@ class NodeStructureTestCase(unittest.TestCase):
         expected = [('34', 'Upload', {'path': '/a', '__done__': False})]
         self.assertEqual(node.operations, expected)
         self.assertEqual(node.done, False)
+
+    def test_two_ops_same_id_simple(self):
+        """Add two ops *with the same id* to the same node and finish both."""
+        # use always this operation id and data
+        op_id = 'whatever'
+        op_data = {'path': '/a'}
+
+        # add one operation
+        self.qc.add('Unlink', op_id, op_data)
+        expected = [(op_id, 'Unlink', {'path': '/a', '__done__': False})]
+        node = self.qc._node_ops[''].children['a']
+        self.assertEqual(node.operations, expected)
+        self.assertFalse(node.done)
+
+        # finish it
+        self.qc.remove('Unlink', op_id, op_data)
+        expected = [(op_id, 'Unlink', {'path': '/a', '__done__': True})]
+        self.assertEqual(node.operations, expected)
+        self.assertTrue(node.done)
+
+        # add a second one (as all is finished, past is replaced)
+        self.qc.add('Unlink', op_id, op_data)
+        expected = [(op_id, 'Unlink', {'path': '/a', '__done__': False})]
+        self.assertEqual(node.operations, expected)
+        self.assertFalse(node.done)
+
+        # finish the second one
+        self.qc.remove('Unlink', op_id, op_data)
+        expected = [(op_id, 'Unlink', {'path': '/a', '__done__': True})]
+        self.assertEqual(node.operations, expected)
+        self.assertTrue(node.done)
+
+    def test_two_ops_same_id_with_intermediate(self):
+        """Add two ops *with the same id* to the same node and finish both."""
+        op_id_1 = 'op id 1'
+        op_id_2 = 'op id 2'
+        op_data = {'path': '/a'}
+
+        # add one operation
+        self.qc.add('Unlink', op_id_1, op_data)
+        expected = [(op_id_1, 'Unlink', {'path': '/a', '__done__': False})]
+        node = self.qc._node_ops[''].children['a']
+        self.assertEqual(node.operations, expected)
+        self.assertFalse(node.done)
+
+        # add a different operation
+        self.qc.add('MakeFile', op_id_2, op_data)
+        expected = [(op_id_1, 'Unlink', {'path': '/a', '__done__': False}),
+                    (op_id_2, 'MakeFile', {'path': '/a', '__done__': False})]
+        self.assertEqual(node.operations, expected)
+        self.assertFalse(node.done)
+
+        # finish the first one
+        self.qc.remove('Unlink', op_id_1, op_data)
+        expected = [(op_id_1, 'Unlink', {'path': '/a', '__done__': True}),
+                    (op_id_2, 'MakeFile', {'path': '/a', '__done__': False})]
+        self.assertEqual(node.operations, expected)
+        self.assertFalse(node.done)
+
+        # add the first one again, same id
+        self.qc.add('Unlink', op_id_1, op_data)
+        expected = [(op_id_1, 'Unlink', {'path': '/a', '__done__': True}),
+                    (op_id_2, 'MakeFile', {'path': '/a', '__done__': False}),
+                    (op_id_1, 'Unlink', {'path': '/a', '__done__': False})]
+        self.assertEqual(node.operations, expected)
+        self.assertFalse(node.done)
+
+        # finish the intermediate one
+        self.qc.remove('MakeFile', op_id_2, op_data)
+        expected = [(op_id_1, 'Unlink', {'path': '/a', '__done__': True}),
+                    (op_id_2, 'MakeFile', {'path': '/a', '__done__': True}),
+                    (op_id_1, 'Unlink', {'path': '/a', '__done__': False})]
+        self.assertEqual(node.operations, expected)
+        self.assertFalse(node.done)
+
+        # finish the first one, again
+        self.qc.remove('Unlink', op_id_1, op_data)
+        expected = [(op_id_1, 'Unlink', {'path': '/a', '__done__': True}),
+                    (op_id_2, 'MakeFile', {'path': '/a', '__done__': True}),
+                    (op_id_1, 'Unlink', {'path': '/a', '__done__': True})]
+        self.assertEqual(node.operations, expected)
+        self.assertTrue(node.done)
 
 
 class GetPathTestCase(unittest.TestCase):
